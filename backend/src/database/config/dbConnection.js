@@ -1,5 +1,6 @@
 // Import ORM
-const Sequelize = require('sequelize');
+const {Sequelize} = require('sequelize');
+const {SchemaCreation} = require('../helperFunction/helper');
 
 // Configuration
 const sequelize = new Sequelize(process.env.DB_NAME , process.env.DB_USER, process.env.DB_PASSWORD ,{
@@ -12,5 +13,8 @@ const sequelize = new Sequelize(process.env.DB_NAME , process.env.DB_USER, proce
 sequelize.authenticate()
     .then(() => console.log("Successfully connected to database"))
     .catch(err => console.log(err));
+
+// Schema creation
+SchemaCreation(sequelize);
 
 module.exports = sequelize;

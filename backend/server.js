@@ -9,6 +9,9 @@ const app = express();
 
 // Database files
 const sequelize = require('./src/database/config/dbConnection');
+const {CreateSchema} = require("./src/database/schema/schema");
+
+
 
 // Listen
 app.listen(process.env.PORT, () => {
