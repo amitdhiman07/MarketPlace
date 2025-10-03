@@ -1,4 +1,5 @@
 const {CreateSchema} = require('../schema/schema');
+const {Users} = require('../model/auth/user');
 
 // For the Schema Creation
 const SchemaCreation = async (sequelize) => {
@@ -10,4 +11,13 @@ const SchemaCreation = async (sequelize) => {
     }
 }
 
-module.exports = {SchemaCreation};
+// For the Table Creation
+const TableCreation = async (sequelize) => {
+    try{
+        await Users(sequelize);
+    }catch (e) {
+        console.error(e);
+    }
+}
+
+module.exports = {SchemaCreation , TableCreation};

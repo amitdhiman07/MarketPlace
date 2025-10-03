@@ -15,6 +15,9 @@ sequelize.authenticate()
     .catch(err => console.log(err));
 
 // Schema creation
-SchemaCreation(sequelize);
+SchemaCreation(sequelize).then(() => {console.log("Schema has been created successfully")}).catch(err => console.log(err));
+
+// Synchronization with the database
+sequelize.sync({force: true});
 
 module.exports = sequelize;
