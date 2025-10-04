@@ -1,0 +1,15 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "/Users/prateekkumar/Documents/Projects/MarketPlace/backend/logs/.c7b86e8dc7ff09c14d83a171c28e40a884c6a1c6-audit.json",
+    "files": [
+        {
+            "date": 1759582277355,
+            "name": "/Users/prateekkumar/Documents/Projects/MarketPlace/backend/logs/error-04-10-2025.log",
+            "hash": "f9d37d3a2ce06c68ab7b500a36e6b2dcbe85dc9f97248616d99ec4e14ea80d8f"
+        }
+    ],
+    "hashType": "sha256"
+}
