@@ -3,13 +3,14 @@ const db = require('../../utils/database/db-init').db;
 const OtpDetailsService = db.OtpDetails;
 const UserMasterService = require('../auth/UserMasterService');
 const sendSMS = require('../../utils/twilio-service/sms');
+const sendEmailToQueue = require('../../utils/email/email-queue');
 
 const OtpService = {
 
     async create(otpData, t) {
         try {
             const createdOtpDetails = await OtpDetailsService.create(otpData, { transaction: t });
-            return { success: true, message: createdOtpDetails, statusCode: 201 };
+            return { success: true, message: createdOtpDetails.get({ plain: true }), statusCode: 201 };
         } catch (e) {
             return { success: false, message: `Error occurred while creating OTP details: ${e.message || e}`, statusCode: 500 };
         }
@@ -34,14 +35,17 @@ const OtpService = {
             } else {
                 userId = isPhoneNumberExists.message.userId;
             }
-            const updateExistingOtp = {
-                userId: userId,
-                latest: false
-            };
-            const updateOtpDetails = await this.updateOtpDetailsByUserId(updateExistingOtp, t);
-            if (!updateOtpDetails.success) {
-                await t.rollback();
-                return updateOtpDetails;
+            const checkOtpExistence = await this.fetchOtpDetailsOnUserId(userId);
+            if (checkOtpExistence.success && checkOtpExistence.message.length > 0) {
+                const updateExistingOtp = {
+                    userId: userId,
+                    latest: false
+                };
+                const updateOtpDetails = await this.updateOtpDetailsByUserId(updateExistingOtp, t);
+                if (!updateOtpDetails.success) {
+                    await t.rollback();
+                    return updateOtpDetails;
+                }
             }
             const otp = generateOtp();
             // const sentMessage = await sendSMS(`Your generated OTP for entering in market-place is ${otp}.`, phoneNumber);
@@ -112,29 +116,39 @@ const OtpService = {
             } else {
                 userId = isEmailExists.message.userId;
             }
-            const updateExistingOtp = {
-                userId: userId,
-                latest: false
-            };
-            const updateOtpDetails = await this.updateOtpDetailsByUserId(updateExistingOtp, t);
-            if (!updateOtpDetails.success) {
-                await t.rollback();
-                return updateOtpDetails;
+            const checkOtpExistence = await this.fetchOtpDetailsOnUserId(userId);
+            if (checkOtpExistence.success && checkOtpExistence.message.length > 0) {
+                const updateExistingOtp = {
+                    userId: userId,
+                    latest: false
+                };
+                const updateOtpDetails = await this.updateOtpDetailsByUserId(updateExistingOtp, t);
+                if (!updateOtpDetails.success) {
+                    await t.rollback();
+                    return updateOtpDetails;
+                }
             }
             const otp = generateOtp();
-            // Send Email here
-            const messageSid = 'SM166eafa9f2458a9959db4c87582be69a';
+            const html = `<p>Your generated OTP for entering in market-place is <b>${otp}</b>.</p>`;
             const otpData = {
                 userId: userId,
                 otp: otp,
-                messageSid: messageSid,
                 deliveredOnMobile: false,
+                emailContent: html
             };
             const savedOtpDetails = await this.create(otpData, t);
             if (!savedOtpDetails.success) {
                 await t.rollback();
                 return savedOtpDetails;
             }
+            const emailData = {
+                to: email,
+                subject: `OTP for entering in market-place`,
+                html: html,
+                otpId: savedOtpDetails.message.otpId,
+                transaction: t,
+            };
+            await sendEmailToQueue(emailData);
             await t.commit();
             return { success: true, message: `OTP has been generated and has been sent to your email successfully.`, statusCode: 201 };
         } catch (e) {

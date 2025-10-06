@@ -1,4 +1,4 @@
-const { DataTypes, fn, literal } = require('sequelize');
+const { DataTypes, literal } = require('sequelize');
 
 module.exports = (sequelize) => {
     const NotificationMaster = sequelize.define(
@@ -16,7 +16,7 @@ module.exports = (sequelize) => {
             },
             messageSid: {
                 type: DataTypes.TEXT,
-                allowNull: false,
+                allowNull: true,
                 // unique: true,
             },
             createdAt: {
@@ -43,6 +43,10 @@ module.exports = (sequelize) => {
                 type: DataTypes.BOOLEAN,
                 allowNull: false,
                 defaultValue: true,
+            },
+            emailContent: {
+                type: DataTypes.TEXT,
+                allowNull: true,
             },
             userId: {
                 type: DataTypes.UUID,
@@ -83,6 +87,16 @@ module.exports = (sequelize) => {
                     fields: ['user_id', 'is_active', 'otp_id'],
                 },
             ],
+            validate: {
+                validateEmailContent() {
+                    if (!this.otp) {
+                        throw new Error('OTP cannot be null.');
+                    }
+                    if (this.deliveredOnMobile === false && !this.emailContent) {
+                        throw new Error('Email content is required when delivering on email.');
+                    }
+                }
+            }
         }
     );
 

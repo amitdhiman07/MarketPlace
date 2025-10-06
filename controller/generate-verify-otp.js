@@ -42,13 +42,16 @@ const generateEmailOtp = async (req, res) => {
         if (!otpDetails) return res.status(400).json({ message: 'Request body cannot be empty for generating OTP.' });
         const email = otpDetails.email;
         if (!email) return res.status(400).json({ message: 'Email is required.' });
-        const otpDetailsResponse = await OtpService.generateOtpDetails(email);
+        const otpDetailsResponse = await OtpService.generateOtpDetailsByEmail(email);
         if (!otpDetailsResponse.success) return res.status(otpDetailsResponse.statusCode).json({ success: false, message: otpDetailsResponse.message });
         return res.status(201).json({ success: true, message: otpDetailsResponse.message });
-    } catch (e) {}
+    } catch (e) {
+        return res.status(500).json({ message: `Error occurred while generating OTP for email: ${e.message || e}` });
+    }
 }
 
 module.exports = {
     generateMobileOtp,
     verifyMobileOtp,
+    generateEmailOtp,
 };
