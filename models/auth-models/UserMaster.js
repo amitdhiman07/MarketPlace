@@ -24,8 +24,8 @@ module.exports = (sequelize) => {
                 allowNull: false,
                 validate: {
                     isIn: {
-                        args: [['Male', 'Female', 'Other']],
-                        msg: 'Gender must be either Male, Female, or Other.',
+                        args: [['M', 'F', 'P']],
+                        msg: 'Gender must be either M, F, or P.',
                     },
                 },
             },
