@@ -129,6 +129,7 @@ const OtpService = {
                 userId = isEmailExists.message.userId;
             }
             const checkOtpExistence = await this.fetchOtpDetailsOnUserId(userId);
+            if (!checkOtpExistence.success) return checkOtpExistence;
             if (checkOtpExistence.success && checkOtpExistence.message.otpId) {
                 const updateExistingOtp = {
                     userId: userId,
@@ -169,6 +170,7 @@ const OtpService = {
 
     async fetchOtpDetailsOnUserId(userId) {
         try {
+            const OtpDetailsModel = getOtpDetailsModel();
             const data = await OtpDetailsModel.findOne({
                 where: { userId: userId, isActive: true, latest: true },
                 order: [['createdAt', 'DESC']],
@@ -195,7 +197,6 @@ const OtpService = {
             const [affectedRows] = await OtpDetailsModel.update(fieldsToUpdate, updateOptions);
             return { success: true, message: affectedRows, statusCode: 200 };
         } catch (e) {
-            console.log("Error: ", e);
             return {
                 success: false,
                 message: `Error occurred while updating OTP details: ${e.message || e}`,

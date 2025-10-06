@@ -42,7 +42,7 @@ async function consumeQueue() {
                     });
                     const result = await transporter.sendMail(emailData);
                     messageSid = result.messageId;
-                    console.log("Message sid : ", messageSid);
+                    logger.info(`Message ID of email sent to ${emailData.to}: `, messageSid);
                     logger.info('Email sent to: ' + emailData.to);
                 } catch (error) {
                     logger.error('Error sending email to:', emailData.to, error);
