@@ -69,7 +69,8 @@ const OtpService = {
     async fetchOtpDetailsOnUserId(userId) {
         try {
             const data = await OtpDetailsService.findOne({
-                where: { userId: userId, isActive: true },
+                where: { userId: userId, isActive: true, latest: true },
+                order: [['createdAt', 'DESC']],
                 raw: true,
             });
 

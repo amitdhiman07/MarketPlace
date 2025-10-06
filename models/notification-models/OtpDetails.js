@@ -29,6 +29,11 @@ module.exports = (sequelize) => {
                 allowNull: false,
                 defaultValue: literal(`NOW() + INTERVAL '15 minutes'`)
             },
+            latest: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: true,
+            },
             isActive: {
                 type: DataTypes.BOOLEAN,
                 allowNull: false,
