@@ -14,6 +14,10 @@ module.exports = (sequelize) => {
                 type: DataTypes.STRING(4),
                 allowNull: false,
             },
+            messageSid: {
+                type: DataTypes.TEXT,
+                allowNull: false,
+            },
             createdAt: {
                 type: DataTypes.DATE,
                 allowNull: false,

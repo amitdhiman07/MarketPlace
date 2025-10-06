@@ -1,9 +1,9 @@
 const client = require('twilio')(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN);
-const logger = require('./logger');
+const logger = require('../logger');
 
-const sendSMS = (message, to = process.env.TWILIO_RECEIVE_PHONE_NUMBER) => {
+const sendSMS = async (message, to = process.env.TWILIO_RECEIVE_PHONE_NUMBER) => {
     try {
-        const sentMessage = client.messages.create({
+        const sentMessage = await client.messages.create({
             body: message,
             from: process.env.TWILIO_PHONE_NUMBER,
             to: to

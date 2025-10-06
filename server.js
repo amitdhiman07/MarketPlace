@@ -26,6 +26,10 @@ app.get('/', (req, res) => {
 
 initializeDb()
     .then(() => {
+        // Registering routes initialization of db
+        const { registerRoutes } = require('./routes/index-routes');
+        registerRoutes(app);
+
         const server = app.listen(port, () => {
             logger.info(`Server listening on port ${port}`);
         });

@@ -4,7 +4,7 @@ const handleMethodRouting = require('../handle-method-routings');
 
 const mappings = {};
 
-router.get('/', (req, res) => {
+router.get('/public', (req, res) => {
     handleMethodRouting(req, res, mappings);
 });
 
