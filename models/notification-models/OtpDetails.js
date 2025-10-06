@@ -75,7 +75,7 @@ module.exports = (sequelize) => {
                 {
                     name: 'uniq_user_active_otp',
                     unique: true,
-                    fields: ['user_id', 'is_active', 'otp'],
+                    fields: ['user_id', 'is_active', 'otp_id'],
                 },
             ],
         }

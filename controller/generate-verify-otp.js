@@ -9,7 +9,7 @@ const generateOtp = async (req, res) => {
         if (!phoneNumber) return res.status(400).json({ message: 'Phone number is required.' });
         const otpDetailsResponse = await OtpService.generateOtpDetails(phoneNumber);
         if (!otpDetailsResponse.success) return res.status(otpDetailsResponse.statusCode).json({ success: false, message: otpDetailsResponse.message });
-        return res.status(201).json({ message: otpDetailsResponse.message });
+        return res.status(201).json({ success: true, message: otpDetailsResponse.message });
     } catch (e) {
         return res.status(500).json({ message: `Error occurred while generating OTP: ${e.message || e}` });
     }

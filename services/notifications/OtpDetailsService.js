@@ -12,13 +12,28 @@ const OtpService = {
             const otp = generateOtp();
             const isPhoneNumberExists = await UserMasterService.getUserDetailsByPhoneNumber(phoneNumber);
             let userId = null;
-            if (!isPhoneNumberExists.success && isPhoneNumberExists.statusCode === 500) { return isPhoneNumberExists; }
+            if (!isPhoneNumberExists.success && isPhoneNumberExists.statusCode === 500) {
+                await t.rollback();
+                return isPhoneNumberExists;
+            }
             else if (!isPhoneNumberExists.success && isPhoneNumberExists.statusCode === 404) {
                 const createNewUser = await UserMasterService.createUser({ phoneNumber }, t);
-                if (!createNewUser.success) return createNewUser;
+                if (!createNewUser.success) {
+                    await t.rollback();
+                    return createNewUser;
+                }
                 userId = createNewUser.message.userId;
             } else {
                 userId = isPhoneNumberExists.message.userId;
+            }
+            const updateExistingOtp = {
+                userId: userId,
+                latest: false
+            };
+            const updateOtpDetails = await this.updateOtpDetailsByUserId(updateExistingOtp, t);
+            if (!updateOtpDetails.success) {
+                await t.rollback();
+                return updateOtpDetails;
             }
             // const sentMessage = await sendSMS(`Your generated OTP for entering in market-place is ${otp}.`, phoneNumber);
             // const sentMessage = await sendSMS(`Your generated OTP for entering in Market-place is ${otp}.`);
@@ -57,6 +72,7 @@ const OtpService = {
             const otpData = {};
             otpData.otpId = otpDetails.otpId;
             otpData.isActive = false;
+            otpData.latest = false;
             const updateOtpDetails = await this.updateOtpDetails(otpData, t);
             if (!updateOtpDetails.success) return updateOtpDetails;
             return { success: true, message: otpDetails.userId, statusCode: 200, transaction: t } ;
@@ -90,11 +106,25 @@ const OtpService = {
                 },
                 transaction: t,
             })
-            return { success: true, message: updatedOtpDetails, statusCode: 200}
+            return { success: true, message: updatedOtpDetails, statusCode: 201 };
         } catch (e) {
             return { success: false, message: `Error occurred while updating OTP details: ${e.message || e}`, statusCode: 500 };
         }
     },
+
+    async updateOtpDetailsByUserId(otpData, t) {
+        try {
+            const updatedOtpDetails = await OtpDetailsService.update(otpData, {
+                where: {
+                    userId: otpData.userId,
+                },
+                transaction: t,
+            });
+            return { success: true, message: updatedOtpDetails, statusCode: 201 };
+        } catch (e) {
+            return { success: false, message: `Error occurred while updating OTP details: ${e.message || e}`, statusCode: 500 };
+        }
+    }
 
 };
 
