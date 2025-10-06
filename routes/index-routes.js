@@ -3,7 +3,7 @@ const saveData = require('./crud-operations/save-data');
 const fetchData = require('./crud-operations/fetch-data');
 const fetchOne = require('./crud-operations/fetch-one');
 const updateData = require('./crud-operations/update-data');
-const { generateOtp } = require('../controller/generateOtp');
+const { generateOtp, verifyOtp } = require('../controller/generate-verify-otp');
 
 const registerRoutes = (app) => {
     const apiRouter = express.Router();
@@ -13,7 +13,8 @@ const registerRoutes = (app) => {
     apiRouter.use('/fetch-data', fetchData);
     apiRouter.use('/single-record', fetchOne);
     apiRouter.use('/update-data', updateData);
-    apiRouter.use("/public/login/otp", generateOtp);
+    apiRouter.use("/public/login/generate-otp", generateOtp);
+    apiRouter.use("/public/login/verify-otp", verifyOtp)
 
     app.use('/api/market-place', apiRouter);
 };

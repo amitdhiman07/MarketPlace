@@ -26,7 +26,11 @@ const UserMasterService = {
 
     async getUserDetailsByPhoneNumber(phoneNumber) {
         try {
-            const userDetails = await UserMaster.findOne({ where: { phoneNumber: phoneNumber }, raw: true });
+            const userDetails = await UserMaster.findOne({
+                where: { phoneNumber: phoneNumber, isActive: true },
+                raw: true,
+                attributes: { exclude: ['createdOn', 'modifiedOn', 'isActive'] }
+            });
             if (!userDetails) return { success: false, message: 'User not found', statusCode: 404 };
             return { success: true, message: userDetails, statusCode: 200 };
         } catch (e) {
