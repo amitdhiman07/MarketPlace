@@ -2,7 +2,7 @@ require("dotenv").config();
 const amqp = require('amqplib');
 const nodemailer = require('nodemailer');
 const logger = require('../logger');
-const OtpService = require('../../services/notifications/OtpDetailsService');
+// const OtpService = require('../../services/notifications/OtpDetailsService');
 
 async function consumeQueue() {
     const connection = await amqp.connect(process.env.RABBITMQ_URL);
@@ -39,7 +39,7 @@ async function consumeQueue() {
                         otpId: emailData.otpId,
                         messageSid: messageSid,
                     };
-                    await OtpService.updateOtpDetails(updateData, null);
+                    // await OtpService.updateOtpDetails(updateData, null);
                 }
             }
         },

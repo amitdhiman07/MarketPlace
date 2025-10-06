@@ -89,9 +89,6 @@ module.exports = (sequelize) => {
             ],
             validate: {
                 validateEmailContent() {
-                    if (!this.otp) {
-                        throw new Error('OTP cannot be null.');
-                    }
                     if (this.deliveredOnMobile === false && !this.emailContent) {
                         throw new Error('Email content is required when delivering on email.');
                     }

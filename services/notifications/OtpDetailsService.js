@@ -36,7 +36,7 @@ const OtpService = {
                 userId = isPhoneNumberExists.message.userId;
             }
             const checkOtpExistence = await this.fetchOtpDetailsOnUserId(userId);
-            if (checkOtpExistence.success && checkOtpExistence.message.length > 0) {
+            if (checkOtpExistence.success && checkOtpExistence.message.otpId) {
                 const updateExistingOtp = {
                     userId: userId,
                     latest: false
@@ -117,7 +117,7 @@ const OtpService = {
                 userId = isEmailExists.message.userId;
             }
             const checkOtpExistence = await this.fetchOtpDetailsOnUserId(userId);
-            if (checkOtpExistence.success && checkOtpExistence.message.length > 0) {
+            if (checkOtpExistence.success && checkOtpExistence.message.otpId) {
                 const updateExistingOtp = {
                     userId: userId,
                     latest: false
@@ -173,38 +173,23 @@ const OtpService = {
 
     async updateOtpDetails(otpData, t) {
         try {
+            console.log("Otp Data : ", otpData);
+            const { otpId, ...fieldsToUpdate } = otpData;
             const updateOptions = {
-                where: {
-                    otpId: otpData.otpId,
-                }
+                where: { otpId },
             };
-            if (t) updateOptions.transaction = t;
 
-            const [affectedRows] = await OtpDetailsModel.update(
-                { messageSid: otpData.messageSid },
-                updateOptions
-            );
+            if (t) updateOptions.transaction = t;
+            const [affectedRows] = await OtpDetailsModel.update(fieldsToUpdate, updateOptions);
 
             console.log('Rows affected:', affectedRows);
-
-            if (affectedRows === 0) {
-                const existing = await OtpDetailsModel.findOne({
-                    where: { otpId: otpData.otpId },
-                    raw: true,
-                });
-                console.warn('No update applied.');
-                console.warn('Existing messageSid:', existing?.messageSid);
-                console.warn('New messageSid:', otpData.messageSid);
-            }
-
             return { success: true, message: affectedRows, statusCode: 200 };
-
         } catch (e) {
             console.log("Error: ", e);
             return {
                 success: false,
                 message: `Error occurred while updating OTP details: ${e.message || e}`,
-                statusCode: 500
+                statusCode: 500,
             };
         }
     },
@@ -215,6 +200,7 @@ const OtpService = {
                 where: {
                     userId: otpData.userId,
                 },
+                returning: true,
                 transaction: t,
             });
             return { success: true, message: updatedOtpDetails, statusCode: 201 };
