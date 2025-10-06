@@ -1,10 +1,12 @@
-const { Sequelize, DataTypes } = require('sequelize');
+const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
-    const UserMaster = sequelize.define('user_master', {
+    const UserMaster = sequelize.define(
+        'user_master',
+        {
             userId: {
-                type: Sequelize.UUID,
-                defaultValue: Sequelize.UUIDV1,
+                type: DataTypes.UUID,
+                defaultValue: DataTypes.UUIDV1,
                 primaryKey: true,
                 unique: true,
             },
@@ -13,30 +15,30 @@ module.exports = (sequelize) => {
                 validate: {
                     len: {
                         args: [1, 300],
-                        msg: 'Full name must be between 1 and 300 characters.'
-                    }
-                }
+                        msg: 'Full name must be between 1 and 300 characters.',
+                    },
+                },
             },
             phoneNumber: {
                 type: DataTypes.STRING(10),
                 allowNull: false,
                 unique: {
-                    msg: 'Phone number already exists.'
+                    msg: 'Phone number already exists.',
                 },
                 validate: {
                     isNumeric: {
-                        msg: 'Phone number must contain only digits.'
+                        msg: 'Phone number must contain only digits.',
                     },
                     len: {
                         args: [10, 10],
-                        msg: 'Phone number must be exactly 10 digits.'
-                    }
-                }
+                        msg: 'Phone number must be exactly 10 digits.',
+                    },
+                },
             },
             createdOn: {
                 type: DataTypes.DATE,
                 allowNull: false,
-                defaultValue: Sequelize.NOW
+                defaultValue: DataTypes.NOW,
             },
             modifiedOn: {
                 type: DataTypes.DATE,
@@ -45,17 +47,26 @@ module.exports = (sequelize) => {
             isActive: {
                 type: DataTypes.BOOLEAN,
                 defaultValue: true,
-            }
+            },
         },
         {
             schema: 'auth',
             tableName: 'user_master',
             timestamps: false,
-            comment: 'This table will store all the users information along with their phone numbers.',
+            comment:
+                'This table will store all the users information along with their phone numbers.',
             underscored: true,
             hasTrigger: true,
             freezeTableName: true,
-        });
+            indexes: [
+                {
+                    name: 'idx_user_master_phone_number',
+                    unique: true,
+                    fields: ['phone_number'],
+                },
+            ],
+        }
+    );
 
     return UserMaster;
 };
