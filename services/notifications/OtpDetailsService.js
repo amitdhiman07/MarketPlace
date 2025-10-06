@@ -1,6 +1,6 @@
 const generateOtp = require('../../utils/common-utility-functions/generate-otp');
 const db = require('../../utils/database/db-init').db;
-const OtpDetailsService = db.OtpDetails;
+const OtpDetailsModel = db.OtpDetails;
 const UserMasterService = require('../auth/UserMasterService');
 const sendSMS = require('../../utils/twilio-service/sms');
 const sendEmailToQueue = require('../../utils/email/email-queue');
@@ -9,7 +9,7 @@ const OtpService = {
 
     async create(otpData, t) {
         try {
-            const createdOtpDetails = await OtpDetailsService.create(otpData, { transaction: t });
+            const createdOtpDetails = await OtpDetailsModel.create(otpData, { transaction: t });
             return { success: true, message: createdOtpDetails.get({ plain: true }), statusCode: 201 };
         } catch (e) {
             return { success: false, message: `Error occurred while creating OTP details: ${e.message || e}`, statusCode: 500 };
@@ -146,7 +146,6 @@ const OtpService = {
                 subject: `OTP for entering in market-place`,
                 html: html,
                 otpId: savedOtpDetails.message.otpId,
-                transaction: t,
             };
             await sendEmailToQueue(emailData);
             await t.commit();
@@ -158,7 +157,7 @@ const OtpService = {
 
     async fetchOtpDetailsOnUserId(userId) {
         try {
-            const data = await OtpDetailsService.findOne({
+            const data = await OtpDetailsModel.findOne({
                 where: { userId: userId, isActive: true, latest: true },
                 order: [['createdAt', 'DESC']],
                 raw: true,
@@ -174,21 +173,45 @@ const OtpService = {
 
     async updateOtpDetails(otpData, t) {
         try {
-            const updatedOtpDetails = await OtpDetailsService.update(otpData, {
+            const updateOptions = {
                 where: {
                     otpId: otpData.otpId,
-                },
-                transaction: t,
-            })
-            return { success: true, message: updatedOtpDetails, statusCode: 201 };
+                }
+            };
+            if (t) updateOptions.transaction = t;
+
+            const [affectedRows] = await OtpDetailsModel.update(
+                { messageSid: otpData.messageSid },
+                updateOptions
+            );
+
+            console.log('Rows affected:', affectedRows);
+
+            if (affectedRows === 0) {
+                const existing = await OtpDetailsModel.findOne({
+                    where: { otpId: otpData.otpId },
+                    raw: true,
+                });
+                console.warn('No update applied.');
+                console.warn('Existing messageSid:', existing?.messageSid);
+                console.warn('New messageSid:', otpData.messageSid);
+            }
+
+            return { success: true, message: affectedRows, statusCode: 200 };
+
         } catch (e) {
-            return { success: false, message: `Error occurred while updating OTP details: ${e.message || e}`, statusCode: 500 };
+            console.log("Error: ", e);
+            return {
+                success: false,
+                message: `Error occurred while updating OTP details: ${e.message || e}`,
+                statusCode: 500
+            };
         }
     },
 
     async updateOtpDetailsByUserId(otpData, t) {
         try {
-            const updatedOtpDetails = await OtpDetailsService.update(otpData, {
+            const updatedOtpDetails = await OtpDetailsModel.update(otpData, {
                 where: {
                     userId: otpData.userId,
                 },
