@@ -1,14 +1,23 @@
 const generateOtp = require('../../utils/common-utility-functions/generate-otp');
-const db = require('../../utils/database/db-init').db;
-const OtpDetailsModel = db.OtpDetails;
 const UserMasterService = require('../auth/UserMasterService');
 const sendSMS = require('../../utils/twilio-service/sms');
 const sendEmailToQueue = require('../../utils/email/email-queue');
+
+function getOtpDetailsModel() {
+    const db = require('../../utils/database/db-init').db;
+    return db.OtpDetails;
+}
+
+function getSequelize() {
+    return require('../../utils/database/db-init').db.sequelize;
+}
+
 
 const OtpService = {
 
     async create(otpData, t) {
         try {
+            const OtpDetailsModel = getOtpDetailsModel();
             const createdOtpDetails = await OtpDetailsModel.create(otpData, { transaction: t });
             return { success: true, message: createdOtpDetails.get({ plain: true }), statusCode: 201 };
         } catch (e) {
@@ -17,7 +26,8 @@ const OtpService = {
     },
 
     async generateOtpDetails(phoneNumber) {
-        const t = await db.sequelize.transaction();
+        const sequelize = getSequelize();
+        const t = await sequelize.transaction();
         try {
             const isPhoneNumberExists = await UserMasterService.getUserDetailsByPhoneNumber(phoneNumber);
             let userId = null;
@@ -71,7 +81,8 @@ const OtpService = {
     },
 
     async verifyOtp(otp, phoneNumber) {
-        const t = await db.sequelize.transaction();
+        const sequelize = getSequelize();
+        const t = await sequelize.transaction();
         try {
             const userExistence = await UserMasterService.getUserDetailsByPhoneNumber(phoneNumber);
             if (!userExistence.success) return userExistence;
@@ -99,7 +110,8 @@ const OtpService = {
     },
 
     async generateOtpDetailsByEmail(email) {
-        const t = await db.sequelize.transaction();
+        const sequelize = getSequelize();
+        const t = await sequelize.transaction();
         try {
             const isEmailExists = await UserMasterService.getUserDetailsByEmail(email);
             let userId = null;
@@ -173,7 +185,7 @@ const OtpService = {
 
     async updateOtpDetails(otpData, t) {
         try {
-            console.log("Otp Data : ", otpData);
+            const OtpDetailsModel = getOtpDetailsModel();
             const { otpId, ...fieldsToUpdate } = otpData;
             const updateOptions = {
                 where: { otpId },
@@ -196,6 +208,7 @@ const OtpService = {
 
     async updateOtpDetailsByUserId(otpData, t) {
         try {
+            const OtpDetailsModel = getOtpDetailsModel();
             const updatedOtpDetails = await OtpDetailsModel.update(otpData, {
                 where: {
                     userId: otpData.userId,

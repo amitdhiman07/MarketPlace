@@ -2,9 +2,21 @@ require("dotenv").config();
 const amqp = require('amqplib');
 const nodemailer = require('nodemailer');
 const logger = require('../logger');
-// const OtpService = require('../../services/notifications/OtpDetailsService');
+const OtpService = require('../../services/notifications/OtpDetailsService');
+const { db, initializeDb } = require('../database/db-init');
 
 async function consumeQueue() {
+    // Initialize the database
+    logger.info('Starting database initialization in consumer.js');
+    await initializeDb();
+    logger.info('Database initialization completed');
+    // Verify OtpDetailsModel is defined
+    if (!db.OtpDetails) {
+        logger.error('OtpDetailsModel is undefined after initialization');
+        throw new Error('OtpDetailsModel is undefined');
+    }
+    logger.info('OtpDetailsModel is defined:', !!db.OtpDetails);
+
     const connection = await amqp.connect(process.env.RABBITMQ_URL);
     const channel = await connection.createChannel();
     const queue = 'email_queue';
@@ -30,6 +42,7 @@ async function consumeQueue() {
                     });
                     const result = await transporter.sendMail(emailData);
                     messageSid = result.messageId;
+                    console.log("Message sid : ", messageSid);
                     logger.info('Email sent to: ' + emailData.to);
                 } catch (error) {
                     logger.error('Error sending email to:', emailData.to, error);
@@ -39,7 +52,7 @@ async function consumeQueue() {
                         otpId: emailData.otpId,
                         messageSid: messageSid,
                     };
-                    // await OtpService.updateOtpDetails(updateData, null);
+                    await OtpService.updateOtpDetails(updateData, null);
                 }
             }
         },
