@@ -22,8 +22,7 @@ module.exports = (sequelize) => {
             expiresAt: {
                 type: DataTypes.DATE,
                 allowNull: false,
-                defaultValue: literal(`NOW() + INTERVAL '15 minutes'`),
-                field: 'expires_at',
+                defaultValue: literal(`NOW() + INTERVAL '15 minutes'`)
             },
             isActive: {
                 type: DataTypes.BOOLEAN,
