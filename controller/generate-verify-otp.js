@@ -1,5 +1,6 @@
 const OtpService = require('../services/notifications/OtpDetailsService');
 const { generateToken } = require('../middleware/generateJwt');
+const { isValidPhoneNumber } = require('libphonenumber-js');
 
 const generateOtp = async (req, res) => {
     try {
@@ -7,6 +8,7 @@ const generateOtp = async (req, res) => {
         if (!otpDetails) return res.status(400).json({ message: 'Request body cannot be empty for generating OTP.' });
         const phoneNumber = otpDetails.phoneNumber;
         if (!phoneNumber) return res.status(400).json({ message: 'Phone number is required.' });
+        if (!isValidPhoneNumber(phoneNumber, 'IN')) return res.status(400).json({ message: 'Invalid Indian phone number.' });
         const otpDetailsResponse = await OtpService.generateOtpDetails(phoneNumber);
         if (!otpDetailsResponse.success) return res.status(otpDetailsResponse.statusCode).json({ success: false, message: otpDetailsResponse.message });
         return res.status(201).json({ success: true, message: otpDetailsResponse.message });
