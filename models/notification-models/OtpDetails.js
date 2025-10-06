@@ -31,6 +31,7 @@ module.exports = (sequelize) => {
             },
             isActive: {
                 type: DataTypes.BOOLEAN,
+                allowNull: false,
                 defaultValue: true,
             },
             userId: {
@@ -69,7 +70,7 @@ module.exports = (sequelize) => {
                 {
                     name: 'uniq_user_active_otp',
                     unique: true,
-                    fields: ['user_id', 'is_active'],
+                    fields: ['user_id', 'is_active', 'otp'],
                 },
             ],
         }

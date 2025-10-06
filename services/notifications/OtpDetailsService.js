@@ -11,10 +11,15 @@ const OtpService = {
         try {
             const otp = generateOtp();
             const isPhoneNumberExists = await UserMasterService.getUserDetailsByPhoneNumber(phoneNumber);
-            if (!isPhoneNumberExists.success && isPhoneNumberExists.statusCode === 500) return isPhoneNumberExists;
-            const createNewUser = await UserMasterService.createUser({ phoneNumber }, t);
-            if (!createNewUser.success) return createNewUser;
-            const userId = createNewUser.message.userId;
+            let userId = null;
+            if (!isPhoneNumberExists.success && isPhoneNumberExists.statusCode === 500) { return isPhoneNumberExists; }
+            else if (!isPhoneNumberExists.success && isPhoneNumberExists.statusCode === 404) {
+                const createNewUser = await UserMasterService.createUser({ phoneNumber }, t);
+                if (!createNewUser.success) return createNewUser;
+                userId = createNewUser.message.userId;
+            } else {
+                userId = isPhoneNumberExists.message.userId;
+            }
             // const sentMessage = await sendSMS(`Your generated OTP for entering in market-place is ${otp}.`, phoneNumber);
             // const sentMessage = await sendSMS(`Your generated OTP for entering in Market-place is ${otp}.`);
             // if (!sentMessage.success) return sentMessage;
