@@ -19,6 +19,16 @@ module.exports = (sequelize) => {
                     },
                 },
             },
+            gender: {
+                type: DataTypes.STRING(10),
+                allowNull: false,
+                validate: {
+                    isIn: {
+                        args: [['Male', 'Female', 'Other']],
+                        msg: 'Gender must be either Male, Female, or Other.',
+                    },
+                },
+            },
             phoneNumber: {
                 type: DataTypes.STRING(10),
                 allowNull: false,
