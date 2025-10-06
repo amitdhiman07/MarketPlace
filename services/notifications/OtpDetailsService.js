@@ -193,8 +193,6 @@ const OtpService = {
 
             if (t) updateOptions.transaction = t;
             const [affectedRows] = await OtpDetailsModel.update(fieldsToUpdate, updateOptions);
-
-            console.log('Rows affected:', affectedRows);
             return { success: true, message: affectedRows, statusCode: 200 };
         } catch (e) {
             console.log("Error: ", e);
