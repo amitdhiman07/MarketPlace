@@ -30,7 +30,7 @@ module.exports = (sequelize) => {
             },
             phoneNumber: {
                 type: DataTypes.STRING(10),
-                allowNull: false,
+                allowNull: true,
                 unique: {
                     msg: 'Phone number already exists.',
                 },
@@ -41,6 +41,22 @@ module.exports = (sequelize) => {
                     len: {
                         args: [10, 10],
                         msg: 'Phone number must be exactly 10 digits.',
+                    },
+                },
+            },
+            email: {
+                type: DataTypes.STRING(300),
+                allowNull: true,
+                unique: {
+                    msg: 'Email address already exists.',
+                },
+                validate: {
+                    isEmail: {
+                        msg: 'Email address must be valid.',
+                    },
+                    len: {
+                        args: [1, 300],
+                        msg: 'Email address must be between 1 and 300 characters.',
                     },
                 },
             },
@@ -62,8 +78,7 @@ module.exports = (sequelize) => {
             schema: 'auth',
             tableName: 'user_master',
             timestamps: false,
-            comment:
-                'This table will store all the users information along with their phone numbers.',
+            comment: 'This table will store all the users information along with their phone numbers.',
             underscored: true,
             hasTrigger: true,
             freezeTableName: true,
@@ -73,7 +88,19 @@ module.exports = (sequelize) => {
                     unique: true,
                     fields: ['phone_number'],
                 },
+                {
+                    name: 'idx_user_master_email',
+                    unique: true,
+                    fields: ['email'],
+                },
             ],
+            validate: {
+                phoneOrEmailRequired() {
+                    if (!this.phoneNumber && !this.email) {
+                        throw new Error('Either phone number or email must be provided.');
+                    }
+                },
+            },
         }
     );
 

@@ -39,6 +39,11 @@ module.exports = (sequelize) => {
                 allowNull: false,
                 defaultValue: true,
             },
+            deliveredOnMobile: {
+                type: DataTypes.BOOLEAN,
+                allowNull: false,
+                defaultValue: true,
+            },
             userId: {
                 type: DataTypes.UUID,
                 allowNull: false,

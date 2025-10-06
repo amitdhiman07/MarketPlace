@@ -2,7 +2,7 @@ const OtpService = require('../services/notifications/OtpDetailsService');
 const { generateToken } = require('../middleware/generateJwt');
 const { isValidPhoneNumber } = require('libphonenumber-js');
 
-const generateOtp = async (req, res) => {
+const generateMobileOtp = async (req, res) => {
     try {
         const otpDetails = req.body;
         if (!otpDetails) return res.status(400).json({ message: 'Request body cannot be empty for generating OTP.' });
@@ -17,7 +17,7 @@ const generateOtp = async (req, res) => {
     }
 };
 
-const verifyOtp = async (req, res) => {
+const verifyMobileOtp = async (req, res) => {
     let t;
     try {
         const otpDetails = req.body;
@@ -34,9 +34,21 @@ const verifyOtp = async (req, res) => {
         if (t) await t.rollback();
         return res.status(500).json({ message: `Error occurred while verifying OTP: ${e.message || e}` });
     }
+};
+
+const generateEmailOtp = async (req, res) => {
+    try {
+        const otpDetails = req.body;
+        if (!otpDetails) return res.status(400).json({ message: 'Request body cannot be empty for generating OTP.' });
+        const email = otpDetails.email;
+        if (!email) return res.status(400).json({ message: 'Email is required.' });
+        const otpDetailsResponse = await OtpService.generateOtpDetails(email);
+        if (!otpDetailsResponse.success) return res.status(otpDetailsResponse.statusCode).json({ success: false, message: otpDetailsResponse.message });
+        return res.status(201).json({ success: true, message: otpDetailsResponse.message });
+    } catch (e) {}
 }
 
 module.exports = {
-    generateOtp,
-    verifyOtp,
+    generateMobileOtp,
+    verifyMobileOtp,
 };
