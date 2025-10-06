@@ -16,6 +16,7 @@ const generateOtp = async (req, res) => {
 };
 
 const verifyOtp = async (req, res) => {
+    let t;
     try {
         const otpDetails = req.body;
         if (!otpDetails) return res.status(400).json({ message: 'Request body cannot be empty for verifying OTP.' });
@@ -23,11 +24,12 @@ const verifyOtp = async (req, res) => {
         if (!phoneNumber || !otp) return res.status(400).json({ message: 'Phone number and OTP is required.' });
         const otpDetailsResponse = await OtpService.verifyOtp(otp, phoneNumber);
         if (!otpDetailsResponse.success) return res.status(otpDetailsResponse.statusCode).json({ success: false, message: otpDetailsResponse.message });
-        const t = otpDetailsResponse.transaction;
+        t = otpDetailsResponse.transaction;
         const token = generateToken({ userId: otpDetailsResponse.message });
         await t.commit();
         return res.status(200).json({ success: true, phoneNumber: phoneNumber, message: `OTP Verified Successfully.`, token: token });
     } catch (e) {
+        if (t) await t.rollback();
         return res.status(500).json({ message: `Error occurred while verifying OTP: ${e.message || e}` });
     }
 }
