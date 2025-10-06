@@ -20,7 +20,7 @@ module.exports = (sequelize) => {
                 },
             },
             gender: {
-                type: DataTypes.STRING(10),
+                type: DataTypes.STRING(1),
                 allowNull: false,
                 validate: {
                     isIn: {
