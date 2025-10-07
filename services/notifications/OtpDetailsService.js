@@ -59,6 +59,7 @@ const OtpService = {
             }
             const otp = generateOtp();
             // const sentMessage = await sendSMS(`Your generated OTP for entering in market-place is ${otp}.`, phoneNumber);
+            // const sentMessage = await sendSMS(`Your generated OTP for entering in market-place is ${otp}.`);
             // if (!sentMessage.success) return sentMessage;
             // const messageSid = sentMessage.message;
             const messageSid = 'SM166eafa9f2458a9959db4c87582be69a';
@@ -129,7 +130,7 @@ const OtpService = {
                 userId = isEmailExists.message.userId;
             }
             const checkOtpExistence = await this.fetchOtpDetailsOnUserId(userId);
-            if (!checkOtpExistence.success) return checkOtpExistence;
+            if (!checkOtpExistence.success && checkOtpExistence.statusCode === 500) return checkOtpExistence;
             if (checkOtpExistence.success && checkOtpExistence.message.otpId) {
                 const updateExistingOtp = {
                     userId: userId,
