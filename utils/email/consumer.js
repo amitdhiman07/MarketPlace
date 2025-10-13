@@ -60,7 +60,4 @@ async function consumeQueue() {
     );
 }
 
-consumeQueue().catch((err) => {
-    logger.error('Error initializing email consumer:', err);
-    process.exit(1);
-});
+module.exports = consumeQueue;

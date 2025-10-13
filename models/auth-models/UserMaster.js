@@ -60,6 +60,11 @@ module.exports = (sequelize) => {
                     },
                 },
             },
+            upVote: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+                defaultValue: 0,
+            },
             createdOn: {
                 type: DataTypes.DATE,
                 allowNull: false,
@@ -78,7 +83,7 @@ module.exports = (sequelize) => {
             schema: 'auth',
             tableName: 'user_master',
             timestamps: false,
-            comment: 'This table will store all the users information along with their phone numbers.',
+            comment: 'This table will store all the users information along with their phone numbers and the upvote for the sellers as well.',
             underscored: true,
             hasTrigger: true,
             freezeTableName: true,
