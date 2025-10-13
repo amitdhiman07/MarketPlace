@@ -6,7 +6,6 @@ const helmet = require('helmet');
 const cors = require("./middleware/cors");
 const logger = require("./utils/logger");
 const { db, initializeDb } = require('./utils/database/db-init');
-const consumeQueue = require("./utils/email/consumer");
 
 const app = express();
 const port = process.env.PORT || 8081;
