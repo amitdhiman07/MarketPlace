@@ -17,9 +17,9 @@ const initializeDatabase = async (sequelize, DataTypes, db) => {
         await notification.initialize(sequelize, DataTypes, db);
         await audit.initialize(sequelize, DataTypes, db);
 
-        // if (process.env.DATABASE_REFRESH === true) {
+        if (process.env.DATABASE_REFRESH === "true") {
             await createFunctionsAndTriggers(db);
-        // }
+        }
         logger.info('Database schemas and models initialized successfully');
     } catch (err) {
         logger.error('Database initialization error', err);

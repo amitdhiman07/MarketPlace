@@ -47,9 +47,6 @@ initializeDb()
             logger.info(`Server listening on port ${port}`);
         });
     })
-    .then(async () => {
-        await consumeQueue();
-    })
     .catch((err) => {
         logger.error('DB init failed', err);
         process.exit(1);
